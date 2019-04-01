@@ -27,20 +27,44 @@ function absolutePermutation(numbers, difference) {
             result[i - 1] = i;
         }
     } else {
-        for (let i = 1; i <= numbers; i++) {
-            let index = 0;
+        // handle the left side first -- all those values that are less than or equal to the difference
+        // those values are forced to be placed at index (value + difference)
+        let index = 0;
+        for (let i = 1; i <= difference; i++) {
+            index = i + difference;
 
-            if (i > difference) {
-                index = i - difference - 1;
+            // no need to check for collisions yet, as they aren't possible
+            result[index - 1] = i;
+        }
+
+        for (let i = numbers; i > difference; i--) {
+            // iterate downwards now
+            // first, we'll hit values that can only have one index, because the other is illegal
+            // when the multi-index values are hit, any collision will allow us to return an error
+            if (i + difference > numbers) {
+                // only 1 index is possible
+                index = i - difference;
+
+                if (typeof result[index - 1] !== 'undefined') {
+                    return IMPOSSIBLE;
+                }
+
+                result[index - 1] = i;
             } else {
-                index = difference + i - 1;
-            }
+                // 2 indices are possible, check each
+                index = i + difference;
 
-            if (typeof result[index] !== 'undefined') {
-                return IMPOSSIBLE;
-            }
+                if (typeof result[index - 1] === 'undefined') {
+                    result[index - 1] = i;
+                } else {
+                    index = i - difference;
+                    if (typeof result[index - 1] !== 'undefined') {
+                        return IMPOSSIBLE;
+                    }
 
-            result[index] = i;
+                    result[index - 1] = i;
+                }
+            }
         }
     }
 
