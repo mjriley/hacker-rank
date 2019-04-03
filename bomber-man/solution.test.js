@@ -84,4 +84,26 @@ describe('bomberMan', () => {
             '...OOOO'
         ]);
     });
+
+    test('it handles empty bomb clusters', () => {
+        const grid = [
+            '.......',
+            '...O.O.',
+            '....O..',
+            '..O....',
+            'OO...OO',
+            'OO.O...'
+        ];
+
+        const expected = [
+            '.......',
+            '...O.O.',
+            '...OO..',
+            '..OOOO.',
+            'OOOOOOO',
+            'OOOOOOO'
+        ];
+
+        expect(bomberMan(5, grid)).toEqual(expected);
+    });
 });
