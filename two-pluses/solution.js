@@ -91,14 +91,18 @@ function doesOverlap(plusLeft, plusRight) {
         return verticalDistanceBetweenCenters < leftEdgeSize + rightEdgeSize;
     }
 
-    const overlapsHorizontally =
-        leftEdgeSize > horizontalDistanceBetweenCenters &&
-        rightEdgeSize > horizontalDistanceBetweenCenters;
-    const overlapsVertically =
-        leftEdgeSize > verticalDistanceBetweenCenters &&
-        rightEdgeSize > verticalDistanceBetweenCenters;
+    // for a collison to exist, there needs to be a horizonal overlap.
+    // Only when a horizontal overlap has been found, we can then check for a vertical overlap
+    // from the opposing plus
+    if (leftEdgeSize > horizontalDistanceBetweenCenters) {
+        return rightEdgeSize > verticalDistanceBetweenCenters;
+    }
 
-    return overlapsHorizontally || overlapsVertically;
+    if (rightEdgeSize > horizontalDistanceBetweenCenters) {
+        return leftEdgeSize > verticalDistanceBetweenCenters;
+    }
+
+    return false;
 }
 
 module.exports = {

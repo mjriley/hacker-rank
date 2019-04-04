@@ -97,13 +97,13 @@ describe('doesOverlap', () => {
 
     test('detects vertical and horizontal overlap', () => {
         expect(
-            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 5, x: 1, y: 2 })
+            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 5, x: 2, y: 2 })
         ).toBe(true);
     });
 
     test('handles when pluses touch', () => {
         expect(
-            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 1, y: 2 })
+            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 2, y: 2 })
         ).toBe(false);
     });
 });
