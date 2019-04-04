@@ -54,11 +54,17 @@ describe('doesOverlap', () => {
 
     test('detects when they overlap horizontally', () => {
         expect(
-            doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 4, y: 2 })
+            doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 3, y: 2 })
         ).toBe(true);
         expect(
-            doesOverlap({ size: 3, x: 4, y: 2 }, { size: 3, x: 2, y: 2 })
+            doesOverlap({ size: 3, x: 3, y: 2 }, { size: 3, x: 2, y: 2 })
         ).toBe(true);
+    });
+
+    test('horizontal touching does not overlap', () => {
+        expect(
+            doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 4, y: 2 })
+        ).toBe(false);
     });
 
     test('detects when they do not overlap vertically', () => {
@@ -72,8 +78,21 @@ describe('doesOverlap', () => {
 
     test('detects when they overlap vertically', () => {
         expect(
-            doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 2, y: 4 })
+            doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 2, y: 3 })
         ).toBe(true);
+    });
+
+    test('vertical touching does not overlap', () => {
+        expect(
+            doesOverlap(
+                { size: 3, x: 2, y: 2 },
+                {
+                    size: 3,
+                    x: 2,
+                    y: 4
+                }
+            )
+        ).toBe(false);
     });
 
     test('detects vertical and horizontal overlap', () => {
@@ -82,7 +101,7 @@ describe('doesOverlap', () => {
         ).toBe(true);
     });
 
-    test.only('handles when pluses touch', () => {
+    test('handles when pluses touch', () => {
         expect(
             doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 1, y: 2 })
         ).toBe(false);

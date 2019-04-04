@@ -70,10 +70,9 @@ function getArea(plusSize) {
     return plusSize * 2 - 1;
 }
 
+// plus format is:
+// { size, x, y}
 function doesOverlap(plusLeft, plusRight) {
-    // plus format is:
-    // { size, x, y}
-
     if (plusLeft.x === plusRight.x && plusLeft.y === plusRight.y) {
         return true;
     }
@@ -84,38 +83,22 @@ function doesOverlap(plusLeft, plusRight) {
     const verticalDistanceBetweenCenters = Math.abs(plusLeft.y - plusRight.y);
     const horizontalDistanceBetweenCenters = Math.abs(plusLeft.x - plusRight.x);
 
-    const horizontallyOverlaps =
-        horizontalDistanceBetweenCenters < leftEdgeSize + rightEdgeSize;
-    const verticallyOverlaps =
-        verticalDistanceBetweenCenters < leftEdgeSize + rightEdgeSize;
-
-    console.log(`overlaps: ${horizontallyOverlaps} ${verticallyOverlaps}`);
-
     if (plusLeft.y === plusRight.y) {
-        return horizontallyOverlaps;
+        return horizontalDistanceBetweenCenters < leftEdgeSize + rightEdgeSize;
     }
 
     if (plusLeft.x === plusRight.x) {
-        return verticallyOverlaps;
+        return verticalDistanceBetweenCenters < leftEdgeSize + rightEdgeSize;
     }
 
-    return horizontallyOverlaps && verticallyOverlaps;
-    // if (
-    //     verticalDistanceBetweenCenters > leftEdgeSize + rightEdgeSize ||
-    //     horizontalDistanceBetweenCenters > leftEdgeSize + rightEdgeSize
-    // ) {
-    //     return false; // no collision is possible.
-    // }
+    const overlapsHorizontally =
+        leftEdgeSize > horizontalDistanceBetweenCenters &&
+        rightEdgeSize > horizontalDistanceBetweenCenters;
+    const overlapsVertically =
+        leftEdgeSize > verticalDistanceBetweenCenters &&
+        rightEdgeSize > verticalDistanceBetweenCenters;
 
-    // if (plusLeft.y === plusRight.y) {
-    //     return leftEdgeSize + rightEdgeSize >= horizontalDistanceBetweenCenters;
-    // }
-
-    // if (plusLeft.x === plusRight.x) {
-    //     const differenceBetweenCenters = Math.abs(plusLeft.y - plusRight.y);
-
-    //     return leftEdgeSize + rightEdgeSize >= verticalDistanceBetweenCenters;
-    // }
+    return overlapsHorizontally || overlapsVertically;
 }
 
 module.exports = {
