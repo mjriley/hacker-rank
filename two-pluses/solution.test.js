@@ -1,4 +1,9 @@
-const { getLargestPlus, getArea, doesOverlap } = require('./solution');
+const {
+    getLargestPlus,
+    getArea,
+    doesOverlap,
+    iteratePluses
+} = require('./solution');
 
 describe('getLargestPlus', () => {
     test('it returns 1 when the cell is surrounded by bad cells', () => {
@@ -105,5 +110,27 @@ describe('doesOverlap', () => {
         expect(
             doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 2, y: 2 })
         ).toBe(false);
+    });
+});
+
+describe('iteratePluses', () => {
+    test('it returns an empty list', () => {
+        const pluses = {};
+        expect([...iteratePluses(pluses, 5)]).toEqual([]);
+    });
+
+    test('it iterates through a single list', () => {
+        const pluses = { 5: [7, 2, 5] };
+        expect([...iteratePluses(pluses, 5)]).toEqual([7, 2, 5]);
+    });
+
+    test('it iterates through lists in order', () => {
+        const pluses = { 5: [7], 4: [2], 2: [5] };
+        expect([...iteratePluses(pluses, 5)]).toEqual([7, 2, 5]);
+    });
+
+    test('it respects the minimum', () => {
+        const pluses = { 5: [7], 4: [2], 2: [5] };
+        expect([...iteratePluses(pluses, 5, 2)]).toEqual([7, 2]);
     });
 });
