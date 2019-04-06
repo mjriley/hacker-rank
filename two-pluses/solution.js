@@ -1,92 +1,36 @@
 'use strict';
-/*
-Observations:
-The grid is, at worst, 15x15, which means, to me, that brute-forcing the problem by finding 
-the largest plus from any given square is a reasonable approach. However, finding the next largest,
-non-overlapping plus for every square would then be an order of magnitude worse for the search space, 
-which is not ideal.
-Ideally, I would like to find the largest plus, label those squares as bad, and then find the next largest plus, but the issue is that
-it is possible to have the largest plus its next largest non-overlapping plus be smaller than if we had found a smaller initial plus
-(i.e. we might get a 5 plus with a 1 plus = 9 rather than using 2 3-pluses = 25)
 
-One situation to keep in mind is the scenario where two 'largest' pluses exist, say 2 p5s, but they'll overlap each other only when p5s.
-A p5 is trivially also a p3, and that p3 may not overlap
+const BAD = 'B';
+const GOOD = 'G';
 
-
-We will need functions:
-- getLargestPlusAtSquare()
-- createNonOverlappedGrid(x, y, plusSize, grid)
-- doesPlusOverlap(x, y, plusSize, nonOverlappedGrid)
-*/
-
-/* New approach:
-- Find the largest plus for each square. Create a hashmap, and store a list for each size of plus
-- Iterate through the largest plus size list
-- For each of these pluses, check any other plus in the list doesn't overlap. If so, this becomes our pair of pluses
-- If not, check each of these pluses against the list of pluses with n-1 size. Remember to include the pluses with n size in that list too
-- That becomes the largest product for a plus with N size.
-- Now repeat the process for pluses with N-1 size. If we ever find a pair with a greater product, then return it, because that is the largest we'll find
-- Otherwise, when we start checking against plues with a certain size (equal to the second plus in the initial search), return our original value.
+// TODO -- consider storing the max size in the plus map, since we need to continually re-compute it
 
 function twoPluses(grid) {
-    return 0;
-}
-*/
-
-function* iteratePluses(pluses, startingSize, minSize = 0) {
-    for (let currentSize = startingSize; currentSize > minSize; currentSize--) {
-        let currentList = pluses[currentSize] || [];
-
-        for (let i = 0; i < currentList.length; i++) {
-            yield currentList[i];
-        }
-    }
-}
-
-function findLargestNonOverlappingPlus(plus, pluses, sizeGrid) {
-    const plusIt = iteratePluses(pluses, plus.size);
-
-    for (testPlus in plusIt) {
-        // make sure the candidate plus is scaled down to, at maximum, the input plus's size
-        const size = Math.min(sizeGrid[testPlus.y][testPlus.x], plus.size);
-        const candidatePlus = {
-            x: testPlus.x,
-            y: testPlus.y,
-            size
-        };
-
-        if (!doesOverlap(plus, testPlus)) {
-            return testPlus;
-        }
-    }
-
-    return null;
-}
-
-function twoPluses(grid) {
-    const { grid: sizeGrid, pluses, maxPlusSize } = generateLargestPluses(grid);
+    const pluses = getPlusMap(grid);
+    const maxSize = Math.max(
+        ...Object.keys(pluses).map(key => parseInt(key, 10))
+    );
 
     let maxArea = 0;
-    let minSize = 0;
-    for (let currentSize = maxPlusSize; currentSize > minSize; currentSize--) {
-        const largestPluses = iteratePluses(
-            pluses,
-            maxPlusSize,
-            currentSize - 1
-        );
-        for (let leftPlus in largestPluses) {
-            let sizedLeftPlus = Object.assign({}, leftPlus, {
-                size: currentSize
-            });
 
-            let rightPlus = findLargestNonOverlappingPlus(
-                sizedLeftPlus,
-                pluses,
-                sizeGrid
-            );
-            let candidateArea = getPlusProduct(sizedLeftPlus, rightPlus);
-            if (candidateArea > maxArea) {
-                maxArea = candidateArea;
+    for (
+        let currentSize = maxSize, minSize = 0;
+        currentSize > minSize;
+        currentSize -= 2
+    ) {
+        // get all pluses of the current size
+        const largestPluses = getPlusesOfSize(pluses, currentSize);
+
+        for (let leftPlus of largestPluses) {
+            let rightPlus = findLargestNonOverlappingPlus(leftPlus, pluses);
+            if (rightPlus === null) {
+                // it is possible to be unable to find a nonoverlapping plus, so just skip this left plus
+                continue;
+            }
+
+            let area = getPlusProduct(sizedLeftPlus, rightPlus);
+            if (area > maxArea) {
+                maxArea = area;
                 minSize = rightPlus.size;
             }
         }
@@ -95,35 +39,55 @@ function twoPluses(grid) {
     return maxArea;
 }
 
-const BAD = 'B';
-const GOOD = 'G';
+// using iterators for the lazy evaluation -- as soon as I find the maximum suitable plus, I'm not interested in the remaining pluses in these iterators
+function* getPlusesOfSize(size, pluses) {
+    const max = Math.max(...Object.keys(pluses).map(key => parseInt(key, 10)));
+    for (let currentSize = max; currentSize >= size; currentSize -= 2) {
+        const currentList = pluses[currentSize] || [];
+        for (let i = 0; i < currentList.length; i++) {
+            yield Object.assign({}, currentList[i], { size });
+        }
+    }
+}
 
-function generateLargestPluses(grid) {
+function* orderPlusesBySize(pluses, maxSize, minSize = 0) {
+    for (let currentSize = maxSize; currentSize > minSize; currentSize -= 2) {
+        let currentIt = getPlusesOfSize(currentSize, pluses);
+
+        for (let plus of currentIt) {
+            yield plus;
+        }
+    }
+}
+
+function findLargestNonOverlappingPlus(leftPlus, pluses) {
+    const plusIt = orderPlusesBySize(pluses, leftPlus.size);
+
+    for (rightPlus of plusIt) {
+        if (!doesOverlap(leftPlus, rightPlus)) {
+            return rightPlus;
+        }
+    }
+
+    return null;
+}
+
+function getPlusMap(grid) {
     const height = grid.length;
     const width = grid[0].length;
 
-    const sizeGrid = [];
     const pluses = {};
-
-    let maxPlusSize = -1;
 
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             const largestPlus = getLargestPlus(x, y, grid);
-            maxPlus = Math.max(maxPlus, largestPlus);
-            sizeGrid[y] = sizeGrid[y] || [];
-            sizeGrid[y][x] = largestPlus;
 
             pluses[largestPlus] = pluses[largestPlus] || [];
             pluses[largestPlus].push({ x, y });
         }
     }
 
-    return {
-        grid: sizeGrid,
-        pluses,
-        maxPlusSize
-    };
+    return pluses;
 }
 
 function getLargestPlus(x, y, grid) {
@@ -202,5 +166,6 @@ module.exports = {
     getLargestPlus,
     getArea,
     doesOverlap,
-    iteratePluses
+    orderPlusesBySize,
+    getPlusesOfSize
 };

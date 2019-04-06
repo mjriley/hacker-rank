@@ -2,7 +2,8 @@ const {
     getLargestPlus,
     getArea,
     doesOverlap,
-    iteratePluses
+    orderPlusesBySize,
+    getPlusesOfSize
 } = require('./solution');
 
 describe('getLargestPlus', () => {
@@ -113,24 +114,86 @@ describe('doesOverlap', () => {
     });
 });
 
-describe('iteratePluses', () => {
+describe('orderPlusesBySize', () => {
     test('it returns an empty list', () => {
         const pluses = {};
-        expect([...iteratePluses(pluses, 5)]).toEqual([]);
+        expect([...orderPlusesBySize(pluses, 5)]).toEqual([]);
     });
 
-    test('it iterates through a single list', () => {
-        const pluses = { 5: [7, 2, 5] };
-        expect([...iteratePluses(pluses, 5)]).toEqual([7, 2, 5]);
+    test('it will re-use pluses', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }]
+        };
+
+        expect([...orderPlusesBySize(pluses, 5)]).toEqual([
+            { x: 1, y: 1, size: 5 },
+            { x: 1, y: 1, size: 3 },
+            { x: 1, y: 1, size: 1 }
+        ]);
+    });
+});
+
+describe('getPlusesOfSize', () => {
+    test('it handles an empty map', () => {
+        expect([...getPlusesOfSize(5, {})]).toEqual([]);
     });
 
-    test('it iterates through lists in order', () => {
-        const pluses = { 5: [7], 4: [2], 2: [5] };
-        expect([...iteratePluses(pluses, 5)]).toEqual([7, 2, 5]);
+    test('it handles the max level', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }, { x: 2, y: 2 }]
+        };
+
+        expect([...getPlusesOfSize(5, pluses)]).toEqual([
+            { x: 1, y: 1, size: 5 },
+            { x: 2, y: 2, size: 5 }
+        ]);
     });
 
-    test('it respects the minimum', () => {
-        const pluses = { 5: [7], 4: [2], 2: [5] };
-        expect([...iteratePluses(pluses, 5, 2)]).toEqual([7, 2]);
+    test('it shrinks larger pluses', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }, { x: 2, y: 2 }]
+        };
+
+        expect([...getPlusesOfSize(3, pluses)]).toEqual([
+            { x: 1, y: 1, size: 3 },
+            { x: 2, y: 2, size: 3 }
+        ]);
+    });
+
+    test('it can handle a map with multiple sizes', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }],
+            3: [{ x: 2, y: 2 }],
+            1: [{ x: 3, y: 3 }]
+        };
+
+        expect([...getPlusesOfSize(1, pluses)]).toEqual([
+            { x: 1, y: 1, size: 1 },
+            { x: 2, y: 2, size: 1 },
+            { x: 3, y: 3, size: 1 }
+        ]);
+    });
+
+    test('it skips smaller pluses', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }],
+            3: [{ x: 2, y: 2 }]
+        };
+
+        expect([...getPlusesOfSize(5, pluses)]).toEqual([
+            { x: 1, y: 1, size: 5 }
+        ]);
+    });
+
+    test('it can skip empty sizes', () => {
+        const pluses = {
+            5: [{ x: 1, y: 1 }],
+            1: [{ x: 3, y: 3 }]
+        };
+
+        expect([...getPlusesOfSize(1, pluses)]).toEqual([
+            { x: 1, y: 1, size: 1 },
+            { x: 3, y: 3, size: 1 }
+        ]);
     });
 });
