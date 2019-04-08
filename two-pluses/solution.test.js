@@ -3,8 +3,116 @@ const {
     getArea,
     doesOverlap,
     orderPlusesBySize,
-    getPlusesOfSize
+    getPlusesOfSize,
+    twoPluses
 } = require('./solution');
+
+describe('twoPluses', () => {
+    test('it handles all bad squares', () => {
+        const grid = ['BB', 'BB'];
+        expect(twoPluses(grid)).toBe(0);
+    });
+
+    test('it handles a plus with no overlap', () => {
+        const grid = ['BG', 'BB'];
+        expect(twoPluses(grid)).toBe(0);
+    });
+
+    test('it handles the situations where 2 non-max-size pluses are better', () => {
+        // prettier-ignore
+        const grid = [
+            'BBGBBB',
+            'BGGBGB',
+            'GGGGGG',
+            'BGGBGB',
+            'BBGBBB'
+        ];
+
+        expect(twoPluses(grid)).toBe(25);
+    });
+
+    test('it passes example 1', () => {
+        // prettier-ignore
+        const grid = [
+            'GGGGGG',
+            'GBBBGB',
+            'GGGGGG',
+            'GGBBGB',
+            'GGGGGG'
+        ];
+
+        expect(twoPluses(grid)).toBe(5);
+    });
+
+    test('it passes example 2', () => {
+        // prettier-ignore
+        const grid = [
+            'BGBBGB',
+            'GGGGGG',
+            'BGBBGB',
+            'GGGGGG',
+            'BGBBGB',
+            'BGBBGB'
+        ];
+
+        expect(twoPluses(grid)).toBe(25);
+    });
+
+    test('it passes failing case', () => {
+        // prettier-ignore
+        const grid = [
+            'GBGBGGB',
+            'GBGBGGB',
+            'GBGBGGB',
+            'GGGGGGG',
+            'GGGGGGG',
+            'GBGBGGB',
+            'GBGBGGB'
+        ];
+
+        expect(twoPluses(grid)).toBe(45);
+    });
+
+    test('it passes another failing case', () => {
+        // prettier-ignore
+        const grid =[
+            'BBBBBGGBGG',
+            'GGGGGGGGGG',
+            'GGGGGGGGGG',
+            'BBBBBGGBGG',
+            'BBBBBGGBGG',
+            'GGGGGGGGGG',
+            'BBBBBGGBGG',
+            'GGGGGGGGGG',
+            'BBBBBGGBGG',
+            'GGGGGGGGGG'
+        ];
+
+        expect(twoPluses(grid)).toBe(85);
+    });
+
+    test('it passes the last failing test case', () => {
+        // prettier-ignore
+        const grid = [
+            'GGGGGGGGGGGGGG',
+            'GGBBBBGBBBBBGG',
+            'GGBBBBGBBBBBGG',
+            'GGBBBBGBBBBBGG',
+            'GGGGGGGGGGGGGG',
+            'GGGGGGGGGGGGGG',
+            'GGGGGGGGGGGGGG',
+            'GGGGGGGGGGGGGG',
+            'GGBBBBGBBBBBGG',
+            'GGBBBBGBBBBBGG',
+            'GGGGGGGGGGGGGG',
+            'GGBBBBGBBBBBGG',
+            'GGBBBBGBBBBBGG',
+            'GGGGGGGGGGGGGG'
+        ];
+
+        expect(twoPluses(grid)).toBe(125);
+    });
+});
 
 describe('getLargestPlus', () => {
     test('it returns 1 when the cell is surrounded by bad cells', () => {
@@ -28,6 +136,18 @@ describe('getLargestPlus', () => {
         const input = ['BBGBB', 'BBGBB', 'GGGGG', 'BBGBB', 'BBGBB'];
 
         expect(getLargestPlus(2, 2, input)).toBe(5);
+    });
+
+    test('it handles testing the bottom edge', () => {
+        // prettier-ignore
+        const input = [
+            'BBGBB',
+            'BBGBB',
+            'GGGGG',
+            'BBGBB',
+        ];
+
+        expect(getLargestPlus(2, 2, input)).toBe(3);
     });
 });
 
@@ -67,10 +187,10 @@ describe('doesOverlap', () => {
         ).toBe(true);
     });
 
-    test('horizontal touching does not overlap', () => {
+    test('horizontal touching overlaps', () => {
         expect(
             doesOverlap({ size: 3, x: 2, y: 2 }, { size: 3, x: 4, y: 2 })
-        ).toBe(false);
+        ).toBe(true);
     });
 
     test('detects when they do not overlap vertically', () => {
@@ -88,7 +208,7 @@ describe('doesOverlap', () => {
         ).toBe(true);
     });
 
-    test('vertical touching does not overlap', () => {
+    test('vertical touching overlaps', () => {
         expect(
             doesOverlap(
                 { size: 3, x: 2, y: 2 },
@@ -98,7 +218,7 @@ describe('doesOverlap', () => {
                     y: 4
                 }
             )
-        ).toBe(false);
+        ).toBe(true);
     });
 
     test('detects vertical and horizontal overlap', () => {
@@ -109,14 +229,21 @@ describe('doesOverlap', () => {
 
     test('handles when pluses touch', () => {
         expect(
-            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 2, y: 2 })
+            doesOverlap({ size: 5, x: 3, y: 3 }, { size: 3, x: 1, y: 1 })
         ).toBe(false);
+    });
+
+    test('it detects the right overlapping the left horizontally', () => {
+        expect(
+            doesOverlap({ size: 9, x: 5, y: 5 }, { size: 5, x: 6, y: 2 })
+        ).toBe(true);
     });
 });
 
 describe('orderPlusesBySize', () => {
     test('it returns an empty list', () => {
         const pluses = {};
+        pluses.max = 0;
         expect([...orderPlusesBySize(pluses, 5)]).toEqual([]);
     });
 
@@ -124,6 +251,7 @@ describe('orderPlusesBySize', () => {
         const pluses = {
             5: [{ x: 1, y: 1 }]
         };
+        pluses.max = 5;
 
         expect([...orderPlusesBySize(pluses, 5)]).toEqual([
             { x: 1, y: 1, size: 5 },
@@ -135,13 +263,16 @@ describe('orderPlusesBySize', () => {
 
 describe('getPlusesOfSize', () => {
     test('it handles an empty map', () => {
-        expect([...getPlusesOfSize(5, {})]).toEqual([]);
+        const pluses = {};
+        pluses.max = 0;
+        expect([...getPlusesOfSize(5, pluses)]).toEqual([]);
     });
 
     test('it handles the max level', () => {
         const pluses = {
             5: [{ x: 1, y: 1 }, { x: 2, y: 2 }]
         };
+        pluses.max = 5;
 
         expect([...getPlusesOfSize(5, pluses)]).toEqual([
             { x: 1, y: 1, size: 5 },
@@ -153,6 +284,7 @@ describe('getPlusesOfSize', () => {
         const pluses = {
             5: [{ x: 1, y: 1 }, { x: 2, y: 2 }]
         };
+        pluses.max = 5;
 
         expect([...getPlusesOfSize(3, pluses)]).toEqual([
             { x: 1, y: 1, size: 3 },
@@ -166,6 +298,7 @@ describe('getPlusesOfSize', () => {
             3: [{ x: 2, y: 2 }],
             1: [{ x: 3, y: 3 }]
         };
+        pluses.max = 5;
 
         expect([...getPlusesOfSize(1, pluses)]).toEqual([
             { x: 1, y: 1, size: 1 },
@@ -179,6 +312,7 @@ describe('getPlusesOfSize', () => {
             5: [{ x: 1, y: 1 }],
             3: [{ x: 2, y: 2 }]
         };
+        pluses.max = 5;
 
         expect([...getPlusesOfSize(5, pluses)]).toEqual([
             { x: 1, y: 1, size: 5 }
@@ -190,6 +324,7 @@ describe('getPlusesOfSize', () => {
             5: [{ x: 1, y: 1 }],
             1: [{ x: 3, y: 3 }]
         };
+        pluses.max = 5;
 
         expect([...getPlusesOfSize(1, pluses)]).toEqual([
             { x: 1, y: 1, size: 1 },
