@@ -21,7 +21,23 @@ We continue peeling layers until our starting coordinate is >= initialWidth / 2,
 */
 
 function matrixRotation(matrix, numRotations) {
-    return matrix;
+    matrixRotationImpl(matrix, numRotations);
+
+    const height = matrix.length;
+
+    for (let i = 0; i < height; i++) {
+        console.log(matrix[i].join(' '));
+    }
+}
+
+function matrixRotationImpl(matrix, numRotations) {
+    const height = matrix.length;
+    const width = matrix[0].length;
+
+    const numRings = Math.min(height, width) / 2;
+    for (let i = 0; i < numRings; i++) {
+        rotateRing(matrix, i, numRotations);
+    }
 }
 
 function rotateRing(matrix, ringIndex, numRotations) {
@@ -113,7 +129,7 @@ function offsetCoordinate(coord, offset) {
 }
 
 module.exports = {
-    matrixRotation,
+    matrixRotationImpl,
     rotateCoordinate,
     rotateCoordinateTimes,
     getRingSquares,

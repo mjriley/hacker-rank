@@ -1,11 +1,76 @@
 'use strict';
 
 const {
+    matrixRotationImpl: matrixRotation,
     rotateCoordinate,
     rotateCoordinateTimes,
     getRingSquares,
     rotateRing
 } = require('./solution');
+
+describe('matrixRotation', () => {
+    test('it passes example 1', () => {
+        const matrix = [
+            [1, 2, 3, 4],
+            [12, 1, 2, 5],
+            [11, 4, 3, 6],
+            [10, 9, 8, 7]
+        ];
+
+        matrixRotation(matrix, 2);
+        expect(matrix).toEqual([
+            [3, 4, 5, 6],
+            [2, 3, 4, 7],
+            [1, 2, 1, 8],
+            [12, 11, 10, 9]
+        ]);
+    });
+
+    test('it passes example 2', () => {
+        const matrix = [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+            [13, 14, 15, 16]
+        ];
+
+        matrixRotation(matrix, 2);
+
+        expect(matrix).toEqual([
+            [3, 4, 8, 12],
+            [2, 11, 10, 16],
+            [1, 7, 6, 15],
+            [5, 9, 13, 14]
+        ]);
+    });
+
+    test('it passes example 3', () => {
+        const matrix = [
+            [1, 2, 3, 4],
+            [7, 8, 9, 10],
+            [13, 14, 15, 16],
+            [19, 20, 21, 22],
+            [25, 26, 27, 28]
+        ];
+
+        matrixRotation(matrix, 7);
+
+        expect(matrix).toEqual([
+            [28, 27, 26, 25],
+            [22, 9, 15, 19],
+            [16, 8, 21, 13],
+            [10, 14, 20, 7],
+            [4, 3, 2, 1]
+        ]);
+    });
+
+    test('it passes example 4', () => {
+        const matrix = [[1, 1], [1, 1]];
+
+        matrixRotation(matrix, 3);
+        expect(matrix).toEqual([[1, 1], [1, 1]]);
+    });
+});
 
 describe('rotateCoordinate', () => {
     test('it rotates a left-most point down', () => {
