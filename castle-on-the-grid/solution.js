@@ -65,16 +65,6 @@ function create2DArray(width, height) {
     return result;
 }
 
-function clone2DArray(grid) {
-    const height = grid.length;
-    const result = [];
-    for (let y = 0; y < height; y++) {
-        result.push(grid[y].split(''));
-    }
-
-    return result;
-}
-
 function minimumMoves(grid, startX, startY, goalX, goalY) {
     // create a copy of the grid that contains the number of moves needed to reach each square
     const gridHeight = grid.length;
@@ -123,10 +113,6 @@ function minimumMoves(grid, startX, startY, goalX, goalY) {
     }
 
     throw 'no path found!';
-}
-
-function printGrid(grid) {
-    console.log(grid.map((row) => row.join('')).join('\n'));
 }
 
 /* follow a given direction until we run into an edge or the square has already been visited,
