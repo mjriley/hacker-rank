@@ -163,3 +163,5 @@ module.exports = {
     getReachableSquares,
     minimumMoves,
 };
+
+console.log('test');

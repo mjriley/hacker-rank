@@ -33,7 +33,7 @@ describe('minimumMoves', () => {
         expect(minimumMoves(grid, 0, 0, 1, 2)).toBe(2);
     });
 
-    it.only('passes failing example', () => {
+    it('passes failing example', () => {
         const grid = [
             '.X..X.X..X..X.......XX..XX....X.X...X........X.....XX.X.X...X.X...X..X',
             '...X.....XX.........XX......X.X.......X......X..XX.X..X..X.....X.X....',
